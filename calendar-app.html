@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KALEND — A Stylish Calendar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,400&family=Space+Grotesk:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e12;
+    --surface: #16161e;
+    --border: #2a2a38;
+    --accent: #e8c97e;
+    --accent2: #7e9ee8;
+    --accent3: #e87e9e;
+    --text: #f0ede6;
+    --muted: #6e6e82;
+    --today-bg: #e8c97e;
+    --today-text: #0e0e12;
+    --event1: #e87e9e;
+    --event2: #7e9ee8;
+    --event3: #8ee87e;
+  }
+
+  .theme-zen {
+    --bg: #f7f4ef;
+    --surface: #fff;
+    --border: #e8e2d9;
+    --accent: #b5654a;
+    --accent2: #4a7ab5;
+    --accent3: #4ab57a;
+    --text: #2a2118;
+    --muted: #9e9080;
+    --today-bg: #b5654a;
+    --today-text: #fff;
+    --event1: #b5654a;
+    --event2: #4a7ab5;
+    --event3: #7a4ab5;
+  }
+
+  .theme-neon {
+    --bg: #03001a;
+    --surface: #06003a;
+    --border: #1a0060;
+    --accent: #00ffcc;
+    --accent2: #ff00aa;
+    --accent3: #ffcc00;
+    --text: #e8f0ff;
+    --muted: #5050a0;
+    --today-bg: #00ffcc;
+    --today-text: #03001a;
+    --event1: #ff00aa;
+    --event2: #00ffcc;
+    --event3: #ffcc00;
+  }
+
+  .theme-paper {
+    --bg: #faf6f0;
+    --surface: #fff8ee;
+    --border: #d9cfc4;
+    --accent: #2d4a3e;
+    --accent2: #8b3a2a;
+    --accent3: #3a4a8b;
+    --text: #1a1208;
+    --muted: #8e7e6e;
+    --today-bg: #2d4a3e;
+    --today-text: #fff8ee;
+    --event1: #8b3a2a;
+    --event2: #3a4a8b;
+    --event3: #6e3a8b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    min-height: 100vh;
+    transition: background 0.5s, color 0.5s;
+    overflow-x: hidden;
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .app {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 32px 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--text);
+    position: relative;
+  }
+
+  .logo span {
+    color: var(--accent);
+  }
+
+  .logo-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .header-right {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  /* THEME SWITCHER */
+  .themes {
+    display: flex;
+    gap: 6px;
+    background: var(--surface);
+    padding: 6px;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+  }
+
+  .theme-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+
+  .theme-btn:hover { transform: scale(1.2); }
+  .theme-btn.active { border-color: var(--text); }
+  .theme-btn[data-theme="dark"] { background: linear-gradient(135deg, #0e0e12, #e8c97e); }
+  .theme-btn[data-theme="zen"] { background: linear-gradient(135deg, #f7f4ef, #b5654a); }
+  .theme-btn[data-theme="neon"] { background: linear-gradient(135deg, #03001a, #00ffcc); }
+  .theme-btn[data-theme="paper"] { background: linear-gradient(135deg, #faf6f0, #2d4a3e); }
+
+  /* NAVIGATION */
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .nav-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+
+  .nav-btn:hover {
+    background: var(--accent);
+    color: var(--today-text);
+    border-color: var(--accent);
+    transform: scale(1.05);
+  }
+
+  .nav-month {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    min-width: 180px;
+    text-align: center;
+    color: var(--text);
+  }
+
+  /* MAIN LAYOUT */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 24px;
+  }
+
+  @media (max-width: 780px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  /* CALENDAR */
+  .calendar-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: background 0.5s, border-color 0.5s;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.15);
+  }
+
+  .day-labels {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid var(--border);
+    padding: 0 12px;
+  }
+
+  .day-label {
+    text-align: center;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 14px 0 10px;
+    font-weight: 500;
+  }
+
+  .day-label.weekend { color: var(--accent); }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0;
+    padding: 8px 12px 16px;
+  }
+
+  .day-cell {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 6px 2px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background 0.15s;
+    position: relative;
+    gap: 3px;
+    min-height: 52px;
+  }
+
+  .day-cell:hover { background: rgba(128,128,128,0.12); }
+
+  .day-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text);
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+    flex-shrink: 0;
+  }
+
+  .day-cell.other-month .day-num { color: var(--muted); opacity: 0.4; }
+
+  .day-cell.today .day-num {
+    background: var(--today-bg);
+    color: var(--today-text);
+    font-weight: 700;
+  }
+
+  .day-cell.selected .day-num {
+    background: var(--accent2);
+    color: #fff;
+  }
+
+  .day-cell.weekend .day-num { color: var(--accent); }
+  .day-cell.today.weekend .day-num { color: var(--today-text); }
+
+  .event-dots {
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 36px;
+  }
+
+  .event-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    transition: background 0.5s, border-color 0.5s;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+  }
+
+  .card-title {
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-weight: 500;
+  }
+
+  /* SELECTED DAY INFO */
+  .selected-date-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .sel-day-num {
+    font-family: 'Fraunces', serif;
+    font-size: 3rem;
+    font-weight: 700;
+    line-height: 1;
+    color: var(--accent);
+  }
+
+  .sel-day-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sel-day-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .sel-month-year {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-top: 2px;
+  }
+
+  /* EVENTS LIST */
+  .events-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .event-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(128,128,128,0.07);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.15s, background 0.15s;
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-10px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .event-item:hover { transform: translateX(3px); background: rgba(128,128,128,0.13); }
+
+  .event-color-bar {
+    width: 3px;
+    height: 32px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .event-item-info { flex: 1; min-width: 0; }
+
+  .event-item-title {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event-item-time {
+    font-size: 0.62rem;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .event-delete {
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 2px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+
+  .event-item:hover .event-delete { opacity: 1; }
+  .event-delete:hover { color: var(--event1); }
+
+  .no-events {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-align: center;
+    padding: 20px 0;
+    font-style: italic;
+  }
+
+  /* ADD EVENT */
+  .add-event-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-input {
+    background: rgba(128,128,128,0.07);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+  .form-input::placeholder { color: var(--muted); }
+
+  .form-row { display: flex; gap: 8px; }
+
+  .color-picker {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .color-option {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+
+  .color-option:hover { transform: scale(1.2); }
+  .color-option.selected { border-color: var(--text); }
+
+  .add-btn {
+    background: var(--accent);
+    color: var(--today-text);
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    text-transform: uppercase;
+  }
+
+  .add-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+  .add-btn:active { transform: translateY(0); }
+
+  /* MINI YEAR STRIP */
+  .year-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+  }
+
+  .mini-month {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    padding: 6px 4px;
+    border-radius: 8px;
+    transition: background 0.15s;
+    border: 1px solid transparent;
+  }
+
+  .mini-month:hover { background: rgba(128,128,128,0.1); }
+  .mini-month.current-month { border-color: var(--accent); }
+
+  .mini-month-name {
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  .mini-month.current-month .mini-month-name { color: var(--accent); }
+
+  .mini-month-dots {
+    display: flex;
+    gap: 1.5px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 28px;
+  }
+
+  .mini-dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--border);
+  }
+
+  .mini-dot.has-event { background: var(--accent2); }
+
+  /* DECORATIVE ELEMENTS */
+  .deco-line {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100vh;
+    background: linear-gradient(to bottom, var(--accent), transparent, var(--accent2));
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .deco-circle {
+    position: fixed;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--accent2) 0%, transparent 70%);
+    opacity: 0.04;
+    top: -100px;
+    right: -100px;
+    pointer-events: none;
+  }
+
+  /* VIEW TOGGLE */
+  .view-toggle {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .view-btn {
+    padding: 7px 12px;
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: none;
+    background: none;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .view-btn.active {
+    background: var(--accent);
+    color: var(--today-text);
+  }
+
+  /* WEEK VIEW */
+  .week-view {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 48px rgba(0,0,0,0.15);
+  }
+
+  .week-header {
+    display: grid;
+    grid-template-columns: 48px repeat(7, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .week-time-gutter { padding: 12px 0; }
+
+  .week-day-header {
+    padding: 12px 8px;
+    text-align: center;
+    border-left: 1px solid var(--border);
+  }
+
+  .week-day-name {
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  .week-day-num {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.2;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 2px;
+  }
+
+  .week-day-header.today-col .week-day-num {
+    background: var(--today-bg);
+    color: var(--today-text);
+  }
+
+  .week-body {
+    display: grid;
+    grid-template-columns: 48px repeat(7, 1fr);
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .week-body::-webkit-scrollbar { width: 4px; }
+  .week-body::-webkit-scrollbar-track { background: transparent; }
+  .week-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .time-slots {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .time-slot {
+    font-size: 0.55rem;
+    color: var(--muted);
+    padding: 2px 6px;
+    height: 40px;
+    display: flex;
+    align-items: flex-start;
+    letter-spacing: 0.05em;
+  }
+
+  .day-column {
+    border-left: 1px solid var(--border);
+    position: relative;
+  }
+
+  .hour-line {
+    height: 40px;
+    border-bottom: 1px solid rgba(128,128,128,0.08);
+    position: relative;
+  }
+
+  .week-event-block {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 6px;
+    padding: 3px 6px;
+    font-size: 0.6rem;
+    font-weight: 500;
+    overflow: hidden;
+    z-index: 2;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .week-event-block:hover { opacity: 0.85; }
+
+  /* TOOLTIP */
+  .tooltip {
+    position: fixed;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 0.7rem;
+    color: var(--text);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+
+  .tooltip.visible { opacity: 1; }
+
+  /* Animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .app { animation: fadeUp 0.5s ease; }
+</style>
+</head>
+<body>
+
+<div class="deco-line"></div>
+<div class="deco-circle"></div>
+
+<div class="app">
+  <header>
+    <div>
+      <div class="logo">KAL<span>E</span>ND</div>
+      <div class="logo-sub">Your Time, Designed</div>
+    </div>
+    <div class="header-right">
+      <div class="view-toggle">
+        <button class="view-btn active" onclick="setView('month')">Month</button>
+        <button class="view-btn" onclick="setView('week')">Week</button>
+      </div>
+      <div class="nav">
+        <button class="nav-btn" onclick="prevPeriod()">←</button>
+        <div class="nav-month" id="navLabel"></div>
+        <button class="nav-btn" onclick="nextPeriod()">→</button>
+      </div>
+      <div class="themes">
+        <div class="theme-btn active" data-theme="dark" onclick="setTheme('dark', this)" title="Dark Luxury"></div>
+        <div class="theme-btn" data-theme="zen" onclick="setTheme('zen', this)" title="Zen Minimal"></div>
+        <div class="theme-btn" data-theme="neon" onclick="setTheme('neon', this)" title="Neon Cyber"></div>
+        <div class="theme-btn" data-theme="paper" onclick="setTheme('paper', this)" title="Paper Craft"></div>
+      </div>
+    </div>
+  </header>
+
+  <div class="main-grid">
+    <!-- CALENDAR VIEW -->
+    <div>
+      <!-- Month View -->
+      <div id="monthView">
+        <div class="calendar-wrap">
+          <div class="day-labels">
+            <div class="day-label weekend">Sun</div>
+            <div class="day-label">Mon</div>
+            <div class="day-label">Tue</div>
+            <div class="day-label">Wed</div>
+            <div class="day-label">Thu</div>
+            <div class="day-label">Fri</div>
+            <div class="day-label weekend">Sat</div>
+          </div>
+          <div class="calendar-grid" id="calGrid"></div>
+        </div>
+      </div>
+
+      <!-- Week View -->
+      <div id="weekView" style="display:none;">
+        <div class="week-view">
+          <div class="week-header" id="weekHeader"></div>
+          <div class="week-body" id="weekBody"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <!-- Selected Day -->
+      <div class="card">
+        <div class="card-title">Selected Day</div>
+        <div class="selected-date-display">
+          <div class="sel-day-num" id="selDayNum">1</div>
+          <div class="sel-day-info">
+            <div class="sel-day-name" id="selDayName">Monday</div>
+            <div class="sel-month-year" id="selMonthYear">January 2026</div>
+          </div>
+        </div>
+        <div class="card-title" style="margin-bottom:10px;">Events</div>
+        <div class="events-list" id="eventsList"></div>
+      </div>
+
+      <!-- Add Event -->
+      <div class="card">
+        <div class="card-title">Add Event</div>
+        <div class="add-event-form">
+          <input class="form-input" id="eventTitle" placeholder="Event name..." type="text" onkeydown="if(event.key==='Enter')addEvent()">
+          <div class="form-row">
+            <input class="form-input" id="eventTime" placeholder="Time (e.g. 14:30)" type="time">
+          </div>
+          <div class="color-picker" id="colorPicker"></div>
+          <button class="add-btn" onclick="addEvent()">+ Add Event</button>
+        </div>
+      </div>
+
+      <!-- Year Strip -->
+      <div class="card">
+        <div class="card-title">Year Overview</div>
+        <div class="year-strip" id="yearStrip"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const SHORT_MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const EVENT_COLORS = ['var(--event1)', 'var(--event2)', 'var(--event3)', 'var(--accent)'];
+
+let today = new Date();
+let currentDate = new Date(today.getFullYear(), today.getMonth(), 1);
+let selectedDate = new Date(today);
+let currentView = 'month';
+let selectedColor = 0;
+let events = {};
+
+// Default sample events
+function getKey(d) {
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function addSampleEvents() {
+  const t = today;
+  const addEv = (dayOffset, title, time, color) => {
+    const d = new Date(t.getFullYear(), t.getMonth(), t.getDate() + dayOffset);
+    const k = getKey(d);
+    if (!events[k]) events[k] = [];
+    events[k].push({ title, time, color });
+  };
+  addEv(0, 'Team Standup', '09:00', 1);
+  addEv(0, 'Design Review', '14:00', 0);
+  addEv(2, 'Product Launch', '10:00', 2);
+  addEv(3, 'Client Call', '15:30', 0);
+  addEv(-1, 'Strategy Meeting', '11:00', 3);
+  addEv(7, 'Sprint Planning', '09:30', 1);
+  addEv(5, 'Lunch with Team', '12:00', 2);
+  addEv(10, 'Quarterly Review', '16:00', 0);
+}
+
+addSampleEvents();
+
+// Color picker setup
+function setupColorPicker() {
+  const cp = document.getElementById('colorPicker');
+  cp.innerHTML = '';
+  EVENT_COLORS.forEach((c, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'color-option' + (i === selectedColor ? ' selected' : '');
+    btn.style.background = getActualColor(i);
+    btn.onclick = () => { selectedColor = i; setupColorPicker(); };
+    cp.appendChild(btn);
+  });
+}
+
+function getActualColor(idx) {
+  const root = getComputedStyle(document.documentElement);
+  const map = ['--event1', '--event2', '--event3', '--accent'];
+  return root.getPropertyValue(map[idx]).trim();
+}
+
+// Render month
+function renderMonth() {
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  const y = currentDate.getFullYear(), m = currentDate.getMonth();
+  const first = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m + 1, 0).getDate();
+  const daysInPrev = new Date(y, m, 0).getDate();
+  const total = Math.ceil((first + daysInMonth) / 7) * 7;
+
+  for (let i = 0; i < total; i++) {
+    let d, isOther = false;
+    if (i < first) { d = new Date(y, m - 1, daysInPrev - first + i + 1); isOther = true; }
+    else if (i >= first + daysInMonth) { d = new Date(y, m + 1, i - first - daysInMonth + 1); isOther = true; }
+    else { d = new Date(y, m, i - first + 1); }
+
+    const cell = document.createElement('div');
+    cell.className = 'day-cell';
+    if (isOther) cell.classList.add('other-month');
+    if (d.toDateString() === today.toDateString()) cell.classList.add('today');
+    if (d.toDateString() === selectedDate.toDateString()) cell.classList.add('selected');
+    if (d.getDay() === 0 || d.getDay() === 6) cell.classList.add('weekend');
+
+    const num = document.createElement('div');
+    num.className = 'day-num';
+    num.textContent = d.getDate();
+    cell.appendChild(num);
+
+    const k = getKey(d);
+    if (events[k] && events[k].length) {
+      const dots = document.createElement('div');
+      dots.className = 'event-dots';
+      events[k].slice(0, 3).forEach(ev => {
+        const dot = document.createElement('div');
+        dot.className = 'event-dot';
+        dot.style.background = getActualColor(ev.color);
+        dots.appendChild(dot);
+      });
+      cell.appendChild(dots);
+    }
+
+    const capturedD = new Date(d);
+    cell.onclick = () => selectDay(capturedD);
+    grid.appendChild(cell);
+  }
+
+  document.getElementById('navLabel').textContent = `${MONTHS[m]} ${y}`;
+  updateSidebar();
+  renderYearStrip();
+}
+
+// Render week
+function renderWeek() {
+  const startOfWeek = new Date(selectedDate);
+  startOfWeek.setDate(selectedDate.getDate() - selectedDate.getDay());
+
+  const header = document.getElementById('weekHeader');
+  const body = document.getElementById('weekBody');
+  header.innerHTML = '<div class="week-time-gutter"></div>';
+  
+  const HOURS = Array.from({length: 24}, (_, i) => i);
+
+  // Day headers
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const col = document.createElement('div');
+    col.className = 'week-day-header' + (d.toDateString() === today.toDateString() ? ' today-col' : '');
+    col.innerHTML = `<div class="week-day-name">${DAYS[i].slice(0,3)}</div><div class="week-day-num">${d.getDate()}</div>`;
+    header.appendChild(col);
+  }
+
+  // Body
+  body.innerHTML = '';
+  // Time gutter
+  const gutter = document.createElement('div');
+  gutter.className = 'time-slots';
+  HOURS.forEach(h => {
+    const slot = document.createElement('div');
+    slot.className = 'time-slot';
+    slot.textContent = h === 0 ? '' : `${h.toString().padStart(2,'0')}:00`;
+    gutter.appendChild(slot);
+  });
+  body.appendChild(gutter);
+
+  // Day columns
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(startOfWeek);
+    d.setDate(startOfWeek.getDate() + i);
+    const col = document.createElement('div');
+    col.className = 'day-column';
+    const k = getKey(d);
+    
+    HOURS.forEach(h => {
+      const line = document.createElement('div');
+      line.className = 'hour-line';
+      col.appendChild(line);
+    });
+
+    if (events[k]) {
+      events[k].forEach(ev => {
+        if (ev.time) {
+          const [hh, mm] = ev.time.split(':').map(Number);
+          const top = (hh + mm/60) * 40;
+          const block = document.createElement('div');
+          block.className = 'week-event-block';
+          block.style.top = top + 'px';
+          block.style.height = '36px';
+          block.style.background = getActualColor(ev.color);
+          block.style.color = '#fff';
+          block.textContent = ev.title;
+          col.appendChild(block);
+        }
+      });
+    }
+
+    body.appendChild(col);
+  }
+
+  const ws = new Date(startOfWeek), we = new Date(startOfWeek);
+  we.setDate(ws.getDate() + 6);
+  document.getElementById('navLabel').textContent = `${SHORT_MONTHS[ws.getMonth()]} ${ws.getDate()} – ${SHORT_MONTHS[we.getMonth()]} ${we.getDate()}, ${we.getFullYear()}`;
+}
+
+function selectDay(d) {
+  selectedDate = d;
+  if (currentView === 'month') renderMonth();
+  else renderWeek();
+  updateSidebar();
+}
+
+function updateSidebar() {
+  document.getElementById('selDayNum').textContent = selectedDate.getDate();
+  document.getElementById('selDayName').textContent = DAYS[selectedDate.getDay()];
+  document.getElementById('selMonthYear').textContent = `${MONTHS[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+  
+  const list = document.getElementById('eventsList');
+  const k = getKey(selectedDate);
+  list.innerHTML = '';
+  
+  if (!events[k] || !events[k].length) {
+    list.innerHTML = '<div class="no-events">No events — yet ✦</div>';
+    return;
+  }
+
+  events[k].forEach((ev, idx) => {
+    const item = document.createElement('div');
+    item.className = 'event-item';
+    item.innerHTML = `
+      <div class="event-color-bar" style="background:${getActualColor(ev.color)}"></div>
+      <div class="event-item-info">
+        <div class="event-item-title">${ev.title}</div>
+        <div class="event-item-time">${ev.time || 'All day'}</div>
+      </div>
+      <button class="event-delete" onclick="deleteEvent('${k}', ${idx})">✕</button>
+    `;
+    list.appendChild(item);
+  });
+}
+
+function deleteEvent(k, idx) {
+  events[k].splice(idx, 1);
+  if (!events[k].length) delete events[k];
+  updateSidebar();
+  if (currentView === 'month') renderMonth();
+  else renderWeek();
+  renderYearStrip();
+}
+
+function addEvent() {
+  const title = document.getElementById('eventTitle').value.trim();
+  if (!title) { document.getElementById('eventTitle').focus(); return; }
+  const time = document.getElementById('eventTime').value;
+  const k = getKey(selectedDate);
+  if (!events[k]) events[k] = [];
+  events[k].push({ title, time, color: selectedColor });
+  document.getElementById('eventTitle').value = '';
+  document.getElementById('eventTime').value = '';
+  updateSidebar();
+  if (currentView === 'month') renderMonth();
+  else renderWeek();
+  renderYearStrip();
+}
+
+function renderYearStrip() {
+  const strip = document.getElementById('yearStrip');
+  strip.innerHTML = '';
+  const y = currentDate.getFullYear();
+  
+  for (let m = 0; m < 12; m++) {
+    const mini = document.createElement('div');
+    mini.className = 'mini-month' + (m === currentDate.getMonth() && currentView === 'month' ? ' current-month' : '');
+    
+    const name = document.createElement('div');
+    name.className = 'mini-month-name';
+    name.textContent = SHORT_MONTHS[m];
+    mini.appendChild(name);
+
+    const dots = document.createElement('div');
+    dots.className = 'mini-month-dots';
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
+    for (let d = 1; d <= Math.min(daysInMonth, 9); d++) {
+      const dot = document.createElement('div');
+      const k = getKey(new Date(y, m, d));
+      dot.className = 'mini-dot' + (events[k] ? ' has-event' : '');
+      dots.appendChild(dot);
+    }
+    mini.appendChild(dots);
+    
+    const capturedM = m;
+    mini.onclick = () => { currentDate = new Date(y, capturedM, 1); setView('month'); };
+    strip.appendChild(mini);
+  }
+}
+
+function prevPeriod() {
+  if (currentView === 'month') currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+  else { selectedDate.setDate(selectedDate.getDate() - 7); }
+  render();
+}
+
+function nextPeriod() {
+  if (currentView === 'month') currentDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1);
+  else { selectedDate.setDate(selectedDate.getDate() + 7); }
+  render();
+}
+
+function setView(v) {
+  currentView = v;
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.view-btn[onclick="setView('${v}')"]`).classList.add('active');
+  document.getElementById('monthView').style.display = v === 'month' ? '' : 'none';
+  document.getElementById('weekView').style.display = v === 'week' ? '' : 'none';
+  render();
+}
+
+function render() {
+  if (currentView === 'month') renderMonth();
+  else renderWeek();
+}
+
+function setTheme(theme, btn) {
+  document.body.className = theme === 'dark' ? '' : `theme-${theme}`;
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  setTimeout(() => { setupColorPicker(); render(); }, 50);
+}
+
+// Init
+setupColorPicker();
+renderMonth();
+renderYearStrip();
+</script>
+</body>
+</html>
