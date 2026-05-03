@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Live Status - Metro.Go</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Space+Grotesk:wght@600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "inverse-on-surface": "#2f3035",
+                        "on-secondary-fixed-variant": "#5d11ba",
+                        "surface-container-low": "#1a1c20",
+                        "on-tertiary-container": "#aa0060",
+                        "inverse-surface": "#e2e2e8",
+                        "on-error": "#690005",
+                        "surface-dim": "#111318",
+                        "outline-variant": "#3b494c",
+                        "secondary-container": "#5d11ba",
+                        "on-primary-container": "#005f6d",
+                        "tertiary-fixed-dim": "#ffb0cb",
+                        "on-surface": "#e2e2e8",
+                        "background": "#111318",
+                        "secondary": "#d5bbff",
+                        "on-secondary": "#41008b",
+                        "on-primary": "#00363f",
+                        "primary-container": "#00e0ff",
+                        "on-secondary-fixed": "#270058",
+                        "surface-container-high": "#282a2e",
+                        "inverse-primary": "#006877",
+                        "surface-variant": "#333539",
+                        "on-tertiary-fixed-variant": "#8d004f",
+                        "secondary-fixed": "#ecdcff",
+                        "surface-container-lowest": "#0c0e12",
+                        "surface-container": "#1e2024",
+                        "error": "#ffb4ab",
+                        "on-tertiary": "#640036",
+                        "surface-bright": "#37393e",
+                        "on-primary-fixed-variant": "#004e5a",
+                        "primary": "#baf2ff",
+                        "surface-container-highest": "#333539",
+                        "on-surface-variant": "#bac9cd",
+                        "secondary-fixed-dim": "#d5bbff",
+                        "on-secondary-container": "#c7a5ff",
+                        "tertiary-container": "#ffb9d0",
+                        "on-error-container": "#ffdad6",
+                        "tertiary-fixed": "#ffd9e3",
+                        "on-background": "#e2e2e8",
+                        "error-container": "#93000a",
+                        "surface": "#111318",
+                        "on-primary-fixed": "#001f25",
+                        "tertiary": "#ffe1e9",
+                        "outline": "#859397",
+                        "primary-fixed": "#a5eeff",
+                        "on-tertiary-fixed": "#3e001f",
+                        "primary-fixed-dim": "#00daf8",
+                        "surface-tint": "#00daf8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-lg": "24px",
+                        "stack-sm": "4px",
+                        "gutter": "16px",
+                        "unit": "8px",
+                        "stack-md": "12px",
+                        "container-margin": "24px"
+                    },
+                    "fontFamily": {
+                        "h1": ["Manrope"],
+                        "h2": ["Manrope"],
+                        "body-md": ["Manrope"],
+                        "h3": ["Manrope"],
+                        "label-caps": ["Space Grotesk"],
+                        "data-display": ["Space Grotesk"],
+                        "body-lg": ["Manrope"]
+                    },
+                    "fontSize": {
+                        "h1": ["40px", { "lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "h2": ["32px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "h3": ["24px", { "lineHeight": "1.3", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "1.0", "letterSpacing": "0.1em", "fontWeight": "600" }],
+                        "data-display": ["20px", { "lineHeight": "1.0", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-md text-body-md antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="fixed z-50 bg-zinc-950/40 backdrop-blur-3xl text-cyan-400 font-manrope tracking-tighter font-bold uppercase docked full-width top-0 border-b border-white/10 shadow-none flex justify-between items-center w-full px-6 py-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-high overflow-hidden border border-outline-variant/50">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="A close-up portrait of a user in a futuristic, neon-lit urban environment. The lighting is high-contrast with deep charcoal shadows and vibrant electric blue rim light, creating a moody, advanced aesthetic. The subject looks confident, fitting a high-tech commute context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2C-QSdu8RgxRgFIqcqsRb5JEYp1HcFpoSCojmHUCAaVwcL_mA-jdUQ9QOv7Np8pNs7FDBHEmI_7un5ctXaDfp_C4FgfekfTfVqVU8_tBEUmmkiSw9wXZeGqg1jdNzEMzRw8_nWTZ3K_NvC-Sj818hD4TRI8GYwKqOXdzfMO9NGiRzAj1GT211Zv_vrAFcG-B1vNgyHOFk9YmAvMJXTEPobaxDe5txdRUGgGbQ6hFhlg6h0wEdMkW3H1fCBP8x2xppE667Rxom_Q"/>
+</div>
+<span class="text-2xl font-black text-cyan-400 drop-shadow-[0_0_12px_rgba(0,224,255,0.9)]">METRO.GO</span>
+</div>
+<button class="text-cyan-400 hover:text-cyan-300 transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">tune</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="pt-[88px] pb-[104px] min-h-screen relative overflow-x-hidden">
+<!-- Ambient Background Glow -->
+<div class="absolute top-20 left-1/2 -translate-x-1/2 w-[150%] h-[500px] bg-primary-fixed-dim/5 blur-[120px] rounded-[100%] pointer-events-none -z-10"></div>
+<div class="px-container-margin max-w-2xl mx-auto">
+<!-- Hero Status Card (Glassmorphism & Brutalism hybrid) -->
+<section class="mt-stack-md mb-stack-lg relative">
+<div class="absolute inset-0 bg-gradient-to-b from-primary-container/10 to-transparent rounded-xl blur-md -z-10"></div>
+<div class="bg-surface-container-low/60 backdrop-blur-2xl border border-outline-variant/30 rounded-xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-4">
+<!-- Brutalist Route Block -->
+<div class="bg-primary-container text-on-primary-container font-data-display text-h3 px-3 py-2 uppercase border border-primary-container/50 shadow-[4px_4px_0px_rgba(0,0,0,0.5)]">
+                                AX-1
+                            </div>
+<div>
+<h1 class="font-h2 text-h2 text-on-surface mb-1">Aero Express</h1>
+<p class="font-body-md text-body-md text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[18px]">flight_takeoff</span> Terminal 4 Direct
+                                </p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<!-- High-tech Status Chip -->
+<div class="bg-surface-tint/10 border border-surface-tint shadow-[0_0_12px_rgba(0,218,248,0.3)] rounded-full px-4 py-1.5 flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-surface-tint shadow-[0_0_8px_rgba(0,218,248,1)]"></div>
+<span class="font-label-caps text-label-caps text-surface-tint tracking-widest uppercase">Live • On Time</span>
+</div>
+<div class="text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider ml-auto">
+                            Est. Arrival: 14:42
+                        </div>
+</div>
+</div>
+</section>
+<!-- Digital Circuit Timeline -->
+<section class="relative mt-12 mb-8">
+<!-- Global Timeline Track (The Wire) -->
+<div class="absolute left-[88px] top-4 bottom-12 w-[2px] bg-surface-variant"></div>
+<!-- Glowing Active Segment -->
+<div class="absolute left-[88px] top-4 h-[45%] w-[2px] bg-primary-fixed-dim shadow-[0_0_10px_rgba(0,218,248,0.8)] z-0"></div>
+<!-- Past Stop -->
+<div class="flex relative z-10 mb-stack-lg opacity-50">
+<div class="w-[72px] shrink-0 text-right pr-6 pt-0.5">
+<div class="font-data-display text-body-lg text-on-surface-variant">14:05</div>
+</div>
+<div class="w-8 shrink-0 flex justify-center relative">
+<div class="w-3 h-3 rounded-full bg-surface-variant border-2 border-background mt-2"></div>
+</div>
+<div class="pl-2 pb-6">
+<h3 class="font-body-lg text-body-lg text-on-surface-variant">Central Hub</h3>
+<p class="font-label-caps text-label-caps text-outline uppercase mt-1">Platform 2</p>
+</div>
+</div>
+<!-- Past Stop -->
+<div class="flex relative z-10 mb-stack-lg opacity-50">
+<div class="w-[72px] shrink-0 text-right pr-6 pt-0.5">
+<div class="font-data-display text-body-lg text-on-surface-variant">14:12</div>
+</div>
+<div class="w-8 shrink-0 flex justify-center relative">
+<div class="w-3 h-3 rounded-full bg-surface-variant border-2 border-background mt-2"></div>
+</div>
+<div class="pl-2 pb-6">
+<h3 class="font-body-lg text-body-lg text-on-surface-variant">Financial District</h3>
+<p class="font-label-caps text-label-caps text-outline uppercase mt-1">Platform 4</p>
+</div>
+</div>
+<!-- Current / Next Stop (Active Node) -->
+<div class="flex relative z-10 mb-stack-lg">
+<div class="w-[72px] shrink-0 text-right pr-6 pt-1">
+<div class="font-data-display text-data-display text-primary-fixed-dim drop-shadow-[0_0_8px_rgba(0,218,248,0.6)]">14:24</div>
+<div class="font-label-caps text-[10px] text-primary-fixed-dim mt-1 uppercase">Imminent</div>
+</div>
+<div class="w-8 shrink-0 flex justify-center relative">
+<!-- Glowing Core Node -->
+<div class="w-5 h-5 rounded-full bg-background border-[3px] border-primary-fixed-dim shadow-[0_0_20px_rgba(0,218,248,0.9)] flex items-center justify-center mt-1.5">
+<div class="w-1.5 h-1.5 bg-primary-fixed-dim rounded-full"></div>
+</div>
+</div>
+<div class="pl-2 pb-6 w-full">
+<div class="bg-surface-container-low/40 border border-primary-fixed-dim/30 rounded-lg p-4 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+<h3 class="font-h3 text-h3 text-on-surface mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Innovation Park</h3>
+<div class="flex items-center justify-between">
+<div class="inline-flex items-center gap-1.5 bg-inverse-on-surface border border-outline-variant/50 px-2.5 py-1 rounded">
+<span class="material-symbols-outlined text-[16px] text-primary-fixed-dim">meeting_room</span>
+<span class="font-label-caps text-label-caps text-primary-fixed-dim uppercase">Plat. B</span>
+</div>
+<div class="text-on-surface-variant font-label-caps text-[10px] uppercase flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">sensors</span> Tracking Live
+                                </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Future Stop -->
+<div class="flex relative z-10 mb-stack-lg">
+<div class="w-[72px] shrink-0 text-right pr-6 pt-0.5">
+<div class="font-data-display text-body-lg text-on-surface">14:35</div>
+</div>
+<div class="w-8 shrink-0 flex justify-center relative">
+<div class="w-3 h-3 rounded-full bg-background border-2 border-outline-variant mt-2 z-10"></div>
+</div>
+<div class="pl-2 pb-6">
+<h3 class="font-body-lg text-body-lg text-on-surface">Tech Campus West</h3>
+<p class="font-label-caps text-label-caps text-outline-variant uppercase mt-1">Platform 1</p>
+</div>
+</div>
+<!-- Terminal Stop -->
+<div class="flex relative z-10">
+<div class="w-[72px] shrink-0 text-right pr-6 pt-0.5">
+<div class="font-data-display text-body-lg text-on-surface">14:42</div>
+</div>
+<div class="w-8 shrink-0 flex justify-center relative">
+<!-- End Node shape -->
+<div class="w-4 h-4 rounded-sm bg-background border-[3px] border-outline-variant mt-1.5 z-10 rotate-45"></div>
+</div>
+<div class="pl-2">
+<h3 class="font-body-lg text-body-lg text-on-surface">Intl. Airport T4</h3>
+<p class="font-label-caps text-label-caps text-outline-variant uppercase mt-1">Terminus</p>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-zinc-950/40 backdrop-blur-3xl font-manrope text-[10px] font-bold uppercase tracking-widest fixed bottom-0 w-full rounded-t-none border-t border-white/10 shadow-none fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3">
+<button class="flex flex-col items-center justify-center text-zinc-500 opacity-60 hover:opacity-100 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1 text-[24px]">search</span>
+<span>Search</span>
+</button>
+<button class="flex flex-col items-center justify-center text-cyan-400 drop-shadow-[0_0_15px_rgba(0,224,255,0.8)] scale-110 hover:opacity-100 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1 text-[24px]" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<span>Live</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-500 opacity-60 hover:opacity-100 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1 text-[24px]">near_me</span>
+<span>Route</span>
+</button>
+<button class="flex flex-col items-center justify-center text-zinc-500 opacity-60 hover:opacity-100 transition-all active:scale-90 duration-200">
+<span class="material-symbols-outlined mb-1 text-[24px]">person</span>
+<span>Profile</span>
+</button>
+</nav>
+</body></html>
